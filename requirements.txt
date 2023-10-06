@@ -1,4 +1,1 @@
-deepspeech==0.4.1
-librosa==0.6.3
-numpy==1.16.2
-numba==0.49.1
+openai-whisper==20230918
