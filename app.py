@@ -13,9 +13,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import json
 
 import whisper
+from flask import Flask, request, make_response
 
-model = whisper.load_model("base")
-result = model.transcribe("/home/rich/test.wav")
-print(result["text"])
+app = Flask(__name__)
+
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    model = whisper.load_model("base")
+    f = request.files['audio']
+    f.save('/tmp/audio.wav')
+    resp = make_response()
+    try:
+        result = model.transcribe('/tmp/audio.wav')
+        resp.status_code = 200
+        resp.content_type = 'application/json'
+        resp.data = json.dumps({
+            "status": "ok",
+            "text": result['text']
+        })
+    except IOError:
+        resp = make_response()
+        resp.status_code = 500
+    return resp
+
+@app.route('/train', methods=['POST'])
+def train():
+    model = whisper.load_model("base")
+    f = request.files['audio']
+    f.save('/tmp/audio.wav')
+    text = request.form['text']
+    resp = make_response()
+    resp.status_code = 200
+    resp.content_type = 'application/json'
+    resp.data = json.dumps({
+        "status": "ok",
+        "text": text
+    })
+    return resp
